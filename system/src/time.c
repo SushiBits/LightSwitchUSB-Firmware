@@ -22,12 +22,12 @@
 
 uint32_t millis_counter = 0;
 
-__attribute__((constructor)) void systick_init(void)
+__attribute__((constructor(1000))) void systick_init(void)
 {
 	SysTick_Config(SystemCoreClock / 1000);
 }
 
-void SysTick_Handler(void)
+void SysTick_IRQHandler(void)
 {
 	millis_counter++;
 }

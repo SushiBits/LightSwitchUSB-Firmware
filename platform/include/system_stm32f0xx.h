@@ -92,7 +92,7 @@ extern const uint8_t AHBPrescTable[16]; /*!< AHB prescalers table values */
   * @{
   */
 
-#define SET_FIELD(reg, field, val) (reg) = ((reg) & (field)) | ((val) & (field));
+#define SET_FIELD(reg, field, val) (reg) = ((reg) & ~(field)) | ((val) & (field));
 
 /**
   * @}

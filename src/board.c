@@ -27,8 +27,8 @@ __attribute__((constructor(1001))) void board_init(void)
 			-1,							// PA8
 			-1,							// PA9
 			-1,							// PA10
-			ANALOG,						// PA11	17	USB_DM
-			ANALOG,						// PA12	18	USB_DP
+			AFIO(GPIO_MODE_AF0),			// PA11	17	USB_DM
+			AFIO(GPIO_MODE_AF0),			// PA12	18	USB_DP
 			-1,							// PA13	19	DBG_TMS
 			-1,							// PA14	20	DBG_TCK
 			-1,							// PA15
@@ -53,6 +53,7 @@ __attribute__((constructor(1001))) void board_init(void)
 			-1,							// PB15
 	};
 
+	SYSCFG->CFGR1 |= SYSCFG_CFGR1_PA11_PA12_RMP;
 	for (uint8_t pin = 0; pin < sizeof(pinModes) / sizeof(int); pin++)
 	{
 		int mode = pinModes[pin];

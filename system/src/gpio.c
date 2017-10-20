@@ -45,7 +45,7 @@ uint16_t getPinMode(uint8_t pin)
 	uint32_t type = (GPIO->OTYPER >> pinid) & 0x1;
 	uint32_t speed = (GPIO->OSPEEDR >> (pinid * 2)) & 0x3;
 	uint32_t pupd = (GPIO->PUPDR >> (pinid * 2)) & 0x3;
-	uint32_t afio = (GPIO->AFR[(pinid & 0x8) >> 3] >> ((pinid & 0x7) * 4)) & 0xf;
+	uint32_t afio = (GPIO->AFR[(pinid & 0x8) ? 1 : 0] >> ((pinid & 0x7) * 4)) & 0xf;
 
 	return
 			direction << GPIO_MODE_Pos |
@@ -72,7 +72,7 @@ void pinMode(uint8_t pin, uint16_t mode)
 	SET_FIELD(GPIO->OTYPER, 0x1 << pinid, type << pinid);
 	SET_FIELD(GPIO->OSPEEDR, 0x3 << (pinid * 2), speed << (pinid * 2));
 	SET_FIELD(GPIO->PUPDR, 0x3 << (pinid * 2), pupd << (pinid * 2));
-	SET_FIELD(GPIO->AFR[(pinid & 0x8) >> 3], 0xf << ((pinid & 0x7) * 4), afio << ((pinid & 0x7) * 4));
+	SET_FIELD(GPIO->AFR[(pinid & 0x8) ? 1 : 0], 0xf << ((pinid & 0x7) * 4), afio << ((pinid & 0x7) * 4));
 	__DSB();
 }
 

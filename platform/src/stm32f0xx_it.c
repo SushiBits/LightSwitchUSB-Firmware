@@ -56,6 +56,12 @@ __attribute__((noreturn)) void Reset_IRQHandler(void)
 {
 	SystemInit();
 
+	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGCOMPEN;
+	RCC->APB1ENR |= RCC_APB1ENR_USBEN;
+	__DSB();
+	SET_FIELD(SYSCFG->CFGR1, SYSCFG_CFGR1_MEM_MODE, 0x3);
+	__DSB();
+
 	uint32_t count = __copy_size / sizeof(struct copyitem);
 	for (uint32_t idx = 0; idx < count; idx++)
 	{
@@ -69,11 +75,6 @@ __attribute__((noreturn)) void Reset_IRQHandler(void)
 		const struct zeroitem *item = &(__zero_addr[idx]);
 		memset(item->dst, 0, item->size);
 	}
-
-	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGCOMPEN;
-	__DSB();
-	SET_FIELD(SYSCFG->CFGR1, SYSCFG_CFGR1_MEM_MODE, 0x3);
-	__DSB();
 
 	SystemCoreClockUpdate();
 

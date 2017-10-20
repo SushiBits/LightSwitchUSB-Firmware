@@ -11,6 +11,7 @@ RM := rm -rf
 -include system/src/subdir.mk
 -include src/subdir.mk
 -include platform/src/subdir.mk
+-include contrib/libusb-stm32/src/subdir.mk
 -include subdir.mk
 -include objects.mk
 
