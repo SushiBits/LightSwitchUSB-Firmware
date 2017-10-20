@@ -63,14 +63,17 @@ static const struct usb_qualifier_descriptor qualifier_descriptor =
 
 static const uint8_t usb_hid_report[] =
 {
-	    0x05, 0x01,                    // USAGE_PAGE (Vendor Defined Page 1)
-	    0x09, 0x00,                    // USAGE (Vendor Usage 1)
+	    0x06, 0x00, 0xff,              // USAGE_PAGE (Vendor Defined Page 1)
+	    0x09, 0x01,                    // USAGE (Vendor Usage 1)
 	    0xa1, 0x01,                    // COLLECTION (Application)
 	    0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
 	    0x27, 0xff, 0xff, 0x00, 0x00,  //   LOGICAL_MAXIMUM (65535)
 	    0x75, 0x10,                    //   REPORT_SIZE (16)
 	    0x95, 0x01,                    //   REPORT_COUNT (1)
+	    0x09, 0x01,                    //   USAGE (Vendor Usage 1)
 	    0x81, 0x82,                    //   INPUT (Data,Var,Abs,Vol)
+	    0x95, 0x01,                    //   REPORT_COUNT (1)
+	    0x09, 0x01,                    //   USAGE (Vendor Usage 1)
 	    0x91, 0x82,                    //   OUTPUT (Data,Var,Abs,Vol)
 	    0xc0                           // END_COLLECTION
 };
@@ -223,30 +226,10 @@ static usbd_respond usb_get_descriptor(usbd_ctlreq *req, void **address, uint16_
 static usbd_respond usb_control(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_callback *callback)
 {
 	uint8_t request_type = req->bmRequestType & 0x7f;
-	bool reading = (req->bmRequestType & 0x80) ? true : false;
 	usbd_respond result = usbd_fail;
 
-	switch (request_type)
-	{
-	case USB_DTYPE_HID:
-		switch (req->bRequest)
-		{
-		case USB_HID_GETREPORT:
-			result = usbd_ack;
-			break;
-
-		case USB_HID_SETREPORT:
-			result = usbd_ack;
-			break;
-
-		default:
-			break;
-		}
-		break;
-
-	default:
-		break;
-	}
+	if (req->bRequest == USB_STD_GET_DESCRIPTOR)
+		return usb_get_descriptor(req, &dev->status.data_ptr, &dev->status.data_count);
 
 	return result;
 }
