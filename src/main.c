@@ -7,8 +7,17 @@
 
 #include <stm32f0xx.h>
 
+#include "led.h"
+
 int main(void)
 {
 	for (;;)
-		__WFE();
+	{
+		int value = 0;
+
+		value = led_update() || value;
+
+		if (!value)
+			__WFI();
+	}
 }

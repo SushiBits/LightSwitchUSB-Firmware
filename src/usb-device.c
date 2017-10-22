@@ -1,5 +1,5 @@
 /*
- * usb_device.c
+ * usb-device.c
  *
  *  Created on: Oct 20, 2017
  *      Author: technix
@@ -11,8 +11,10 @@
 #include <stddef.h>
 #include <usb.h>
 #include <usb_hid.h>
+#include <time.h>
 
 #include "usb-config.h"
+#include "usb-device.h"
 #include "led.h"
 
 static usbd_device usb_device;
@@ -122,7 +124,7 @@ static const struct config_descriptor config_descriptor =
 				        .bDescriptorType        = USB_DTYPE_ENDPOINT,
 				        .bEndpointAddress       = USB_RXD_EP,
 				        .bmAttributes           = USB_EPTYPE_INTERRUPT,
-				        .wMaxPacketSize         = USB_PKT_SZ + 1,
+				        .wMaxPacketSize         = USB_PKT_SZ,
 				        .bInterval              = 100,
 				},
 				{
@@ -130,7 +132,7 @@ static const struct config_descriptor config_descriptor =
 				        .bDescriptorType        = USB_DTYPE_ENDPOINT,
 				        .bEndpointAddress       = USB_TXD_EP,
 				        .bmAttributes           = USB_EPTYPE_INTERRUPT,
-				        .wMaxPacketSize         = USB_PKT_SZ + 1,
+				        .wMaxPacketSize         = USB_PKT_SZ,
 				        .bInterval              = 100,
 				}
 		}
@@ -149,8 +151,8 @@ static const struct usb_string_descriptor *const desc_string_table[] =
 static usbd_respond usb_get_descriptor(usbd_ctlreq *req, void **address, uint16_t *length);
 static usbd_respond usb_control(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_callback *callback);
 static usbd_respond usb_set_config(usbd_device *dev, uint8_t cfg);
-static void usb_rx(usbd_device *dev, uint8_t event, uint8_t ep);
-static void usb_tx(usbd_device *dev, uint8_t event, uint8_t ep);
+static void usb_handle(usbd_device *dev, uint8_t event, uint8_t ep);
+clock_t last_poll = 0;
 
 __attribute__((constructor)) void usb_init(void)
 {
@@ -158,6 +160,7 @@ __attribute__((constructor)) void usb_init(void)
 	usbd_reg_descr(&usb_device, usb_get_descriptor);
 	usbd_reg_control(&usb_device, usb_control);
 	usbd_reg_config(&usb_device, usb_set_config);
+
 	usbd_enable(&usb_device, true);
 	usbd_connect(&usb_device, true);
 	USB->BCDR |= USB_BCDR_DPPU;
@@ -225,7 +228,6 @@ static usbd_respond usb_get_descriptor(usbd_ctlreq *req, void **address, uint16_
 
 static usbd_respond usb_control(usbd_device *dev, usbd_ctlreq *req, usbd_rqc_callback *callback)
 {
-	uint8_t request_type = req->bmRequestType & 0x7f;
 	usbd_respond result = usbd_fail;
 
 	if (req->bRequest == USB_STD_GET_DESCRIPTOR)
@@ -247,10 +249,11 @@ static usbd_respond usb_set_config(usbd_device *dev, uint8_t cfg)
 		return usbd_ack;
 
 	case 1:
-        usbd_ep_config(dev, USB_RXD_EP, USB_EPTYPE_INTERRUPT, USB_PKT_SZ);
-        usbd_ep_config(dev, USB_TXD_EP, USB_EPTYPE_INTERRUPT, USB_PKT_SZ);
-        usbd_reg_endpoint(dev, USB_RXD_EP, usb_rx);
-        usbd_reg_endpoint(dev, USB_TXD_EP, usb_tx);
+		usbd_ep_config(dev, USB_RXD_EP, USB_EPTYPE_INTERRUPT, USB_PKT_SZ);
+		usbd_ep_config(dev, USB_TXD_EP, USB_EPTYPE_INTERRUPT, USB_PKT_SZ);
+		usbd_reg_endpoint(dev, USB_RXD_EP, usb_handle);
+		usbd_reg_endpoint(dev, USB_TXD_EP, usb_handle);
+		usbd_ep_write(dev, USB_TXD_EP, NULL, 0);
         return usbd_ack;
 
 	default:
@@ -259,12 +262,27 @@ static usbd_respond usb_set_config(usbd_device *dev, uint8_t cfg)
 	return usbd_fail;
 }
 
-static void usb_rx(usbd_device *dev, uint8_t event, uint8_t ep)
+static void usb_handle(usbd_device *dev, uint8_t event, uint8_t ep)
 {
-	usbd_ep_read(dev, ep, &brightness, USB_PKT_SZ);
-}
+	bool update_poll = false;
+	switch (event)
+	{
+	case usbd_evt_eptx:
+		usbd_ep_write(dev, USB_TXD_EP, &brightness, sizeof(brightness));
+		update_poll = true;
+		break;
 
-static void usb_tx(usbd_device *dev, uint8_t event, uint8_t ep)
-{
-	usbd_ep_write(dev, ep, &brightness, USB_PKT_SZ);
+	case usbd_evt_eprx:
+		usbd_ep_read(dev, USB_RXD_EP, &brightness, sizeof(brightness));
+		update_poll = true;
+		break;
+
+	default:
+		break;
+	}
+
+	if (update_poll)
+	{
+		last_poll = clock();
+	}
 }

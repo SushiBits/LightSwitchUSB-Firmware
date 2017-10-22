@@ -15,6 +15,8 @@ __BEGIN_DECLS
 
 extern uint16_t brightness;
 
+int led_update(void);
+
 __END_DECLS
 
 #endif /* INCLUDE_LED_H_ */
