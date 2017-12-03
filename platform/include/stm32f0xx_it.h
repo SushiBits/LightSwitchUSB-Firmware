@@ -1,25 +1,16 @@
 /*
  * stm32f0xx_it.h
  *
- *  Created on: Oct 17, 2017
+ *  Created on: Nov 8, 2017
  *      Author: technix
  */
 
-#ifndef PLATFORM_INCLUDE_STM32F0XX_IT_H_
-#define PLATFORM_INCLUDE_STM32F0XX_IT_H_
+#include <stm32f0xx.h>
 
-#include <sys/cdefs.h>
+extern void (*ISR_Vector[])(void);
 
-__BEGIN_DECLS
-
-extern void (*isr_vector[])(void);
-
-#define HANDLER(name, id) extern void name##_IRQHandler(void);
-#define SKIP_HANDLER
-#include <stm32f0xx_handlers.h>
+#define IRQN_HANDLER(irqn, name) extern void name ##_IRQHandler(void);
+#define SKIP_HANDLER(irqn)
+#include <stm32f0xx_handler.h>
+#undef IRQN_HANDLER
 #undef SKIP_HANDLER
-#undef HANDLER
-
-__END_DECLS
-
-#endif /* PLATFORM_INCLUDE_STM32F0XX_IT_H_ */

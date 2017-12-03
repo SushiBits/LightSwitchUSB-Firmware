@@ -44,7 +44,7 @@ all: LightSwitchUSB.elf secondary-outputs
 LightSwitchUSB.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GNU ARM Cross C Linker'
-	arm-none-eabi-gcc -mcpu=cortex-m0 -mthumb -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fsingle-precision-constant -Wall  -g3 -T "/Users/technix/Developer/Eclipse/default/LightSwitchUSB/platform/src/stm32f042f4.ld" -T "/Users/technix/Developer/Eclipse/default/LightSwitchUSB/platform/src/stm32f0.ld" -Xlinker --gc-sections -L"/Users/technix/Developer/Eclipse/default/LightSwitchUSB/cmsis/lib" -Wl,-Map,"LightSwitchUSB.map" --specs=nano.specs -o "LightSwitchUSB.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-gcc -mcpu=cortex-m0 -mthumb -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fsingle-precision-constant -Wall  -g3 -T "/Users/technix/Developer/Eclipse/default/LightSwitchUSB/platform/src/stm32f04xx4.ld" -T "/Users/technix/Developer/Eclipse/default/LightSwitchUSB/platform/src/cortex-m0.ld" -Xlinker --gc-sections -L"/Users/technix/Developer/Eclipse/default/LightSwitchUSB/cmsis/lib" -Wl,-Map,"LightSwitchUSB.map" --specs=nano.specs -o "LightSwitchUSB.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

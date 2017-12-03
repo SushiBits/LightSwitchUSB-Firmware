@@ -1,0 +1,10 @@
+obj/*
+svd/*
+html/*
+*.elf
+*.map
+*.depend
+*.ebp
+*.elay
+openocd.cfg
+.DS_Store

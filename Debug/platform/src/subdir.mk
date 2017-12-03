@@ -4,14 +4,17 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../platform/src/sbrk.c \
 ../platform/src/stm32f0xx_it.c \
 ../platform/src/system_stm32f0xx.c 
 
 OBJS += \
+./platform/src/sbrk.o \
 ./platform/src/stm32f0xx_it.o \
 ./platform/src/system_stm32f0xx.o 
 
 C_DEPS += \
+./platform/src/sbrk.d \
 ./platform/src/stm32f0xx_it.d \
 ./platform/src/system_stm32f0xx.d 
 

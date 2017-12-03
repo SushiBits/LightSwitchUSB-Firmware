@@ -1,41 +1,28 @@
 /*
  * stm32f0xx_it.c
  *
- *  Created on: Oct 17, 2017
+ *  Created on: Nov 8, 2017
  *      Author: technix
  */
 
 #include <stm32f0xx_it.h>
-
-#include <stm32f0xx.h>
-
-#define COMPILING_NEWLIB
-#include <stdint.h>
-#include <string.h>
+#include <stddef.h>
 #include <unistd.h>
+#include <string.h>
 
 void __stack(void);
-__attribute((noreturn)) void _start(void);
 void Reset_IRQHandler(void);
-void Default_IRQHandler(void);
 
-__attribute__((section(".vector"))) void (*isr_vector[])(void) =
+__attribute__((section(".vector"))) void (*ISR_Vector[])(void) =
 {
 		__stack,
 		Reset_IRQHandler,
-
-#define HANDLER(name, id) name##_IRQHandler,
-#define SKIP_HANDLER NULL,
-#include <stm32f0xx_handlers.h>
+#define IRQN_HANDLER(irqn, name) name ##_IRQHandler,
+#define SKIP_HANDLER(irqn) NULL,
+#include <stm32f0xx_handler.h>
+#undef IRQN_HANDLER
 #undef SKIP_HANDLER
-#undef HANDLER
 };
-
-#define HANDLER(name, id) __attribute__((weak, alias("Default_IRQHandler"))) void name##_IRQHandler(void);
-#define SKIP_HANDLER
-#include <stm32f0xx_handlers.h>
-#undef SKIP_HANDLER
-#undef HANDLER
 
 extern const struct copyitem
 {
@@ -52,12 +39,13 @@ extern const struct zeroitem
 } *__zero_addr;
 extern uint32_t __zero_size;
 
+__attribute__((noreturn)) extern void _start(void);
+
 __attribute__((noreturn)) void Reset_IRQHandler(void)
 {
 	SystemInit();
 
 	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGCOMPEN;
-	RCC->APB1ENR |= RCC_APB1ENR_USBEN;
 	__DSB();
 	SET_FIELD(SYSCFG->CFGR1, SYSCFG_CFGR1_MEM_MODE, 0x3);
 	__DSB();
@@ -92,13 +80,21 @@ __attribute__((noreturn)) void Default_IRQHandler(void)
 		__WFE();
 }
 
-__attribute__((noreturn)) void _exit(__attribute__((unused)) int status)
+__attribute__((noreturn)) void _exit(int status)
 {
-	if (DHCSR & 1)
+	if (!status && (DHCSR & 1))
 		__BKPT(0);
 
-	SCB->AIRCR = 0x05fa0000 | SCB_AIRCR_SYSRESETREQ_Msk;
+	SCB->AIRCR =
+			(0x05fa << SCB_AIRCR_VECTKEY_Pos) |
+			SCB_AIRCR_SYSRESETREQ_Msk;
 
 	for (;;)
 		__WFE();
 }
+
+#define IRQN_HANDLER(irqn, name) __attribute__((weak, alias("Default_IRQHandler"))) void name ##_IRQHandler(void);
+#define SKIP_HANDLER(irqn)
+#include <stm32f0xx_handler.h>
+#undef IRQN_HANDLER
+#undef SKIP_HANDLER

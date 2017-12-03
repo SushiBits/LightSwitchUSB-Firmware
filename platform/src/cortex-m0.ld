@@ -1,6 +1,12 @@
+/*
+ * cortex-m0.ld
+ *
+ *  Created on: Nov 8, 2017
+ *      Author: technix
+ */
 
 ENTRY(Reset_IRQHandler);
-EXTERN(isr_vector);
+EXTERN(ISR_Vector);
 
 SECTIONS
 {

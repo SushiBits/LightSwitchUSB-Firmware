@@ -12,6 +12,7 @@
 #include <usb.h>
 #include <usb_hid.h>
 #include <time.h>
+#include <stdbool.h>
 
 #include "usb-config.h"
 #include "usb-device.h"

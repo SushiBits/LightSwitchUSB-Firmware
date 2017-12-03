@@ -5,17 +5,14 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../system/src/gpio.c \
-../system/src/sbrk.c \
 ../system/src/time.c 
 
 OBJS += \
 ./system/src/gpio.o \
-./system/src/sbrk.o \
 ./system/src/time.o 
 
 C_DEPS += \
 ./system/src/gpio.d \
-./system/src/sbrk.d \
 ./system/src/time.d 
 
 

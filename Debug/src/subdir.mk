@@ -7,18 +7,21 @@ C_SRCS += \
 ../src/board.c \
 ../src/led.c \
 ../src/main.c \
+../src/rcc.c \
 ../src/usb-device.c 
 
 OBJS += \
 ./src/board.o \
 ./src/led.o \
 ./src/main.o \
+./src/rcc.o \
 ./src/usb-device.o 
 
 C_DEPS += \
 ./src/board.d \
 ./src/led.d \
 ./src/main.d \
+./src/rcc.d \
 ./src/usb-device.d 
 
 

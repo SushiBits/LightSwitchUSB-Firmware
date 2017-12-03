@@ -1,0 +1,9 @@
+[submodule "cmsis"]
+	path = cmsis
+	url = git@github.com:SushiBits/cmsis.git
+[submodule "contrib/libusb-stm32"]
+	path = contrib/libusb-stm32
+	url = git@github.com:xcvista/libusb_stm32.git
+[submodule "platform"]
+	path = platform
+	url = git@github.com:SushiBits/platform-stm32f0.git

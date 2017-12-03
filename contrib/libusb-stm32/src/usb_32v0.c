@@ -15,7 +15,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "stm32f0xx.h"
+#include "stm32.h"
 #include <usb.h>
 
 #if defined(USE_STMV0_DRIVER)
@@ -300,7 +300,6 @@ int32_t ep_read(uint8_t ep, void *buf, uint16_t blen) {
         case 0:
         case (USB_EP_DTOG_RX | USB_EP_SWBUF_RX):
             *reg = (*reg & USB_EPREG_MASK) | USB_EP_SWBUF_RX;
-            break;
         default:
             break;
         }

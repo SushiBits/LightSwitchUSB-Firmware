@@ -15,12 +15,11 @@
 
 #ifndef _USBD_CORE_H_
 #define _USBD_CORE_H_
-
-#include <stdbool.h>
-
 #if defined(__cplusplus)
     extern "C" {
 #endif
+
+#include <stdbool.h>
 
 /**\addtogroup USBD_HW_CORE USB Device HW driver and core API
  * @{ */
